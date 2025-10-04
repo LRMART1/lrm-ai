@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>LRM Product Helper</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 20px;
+      color: #111;
+    }
+    textarea {
+      width: 100%;
+      height: 140px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 10px;
+      font: inherit;
+      margin-bottom: 10px;
+    }
+    button {
+      background: #111;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 14px;
+      cursor: pointer;
+    }
+    #output {
+      margin-top: 20px;
+      padding: 12px;
+      background: #f9f9f9;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      min-height: 100px;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <h1>🪞 LRM Studio — Product Description Helper</h1>
+  <p>Paste your current product description and tell me what you’d like changed.</p>
+
+  <label><strong>Your current description:</strong></label><br>
+  <textarea id="current"></textarea>
+
+  <label><strong>What would you like changed?</strong></label><br>
+  <textarea id="prompt" placeholder="Example: Make it sound more luxury, British, and gift-focused."></textarea>
+
+  <button id="generate">✨ Generate new version</button>
+
+  <div id="output"></div>
+
+  <script>
+    const API_URL = "https://lrm-ai.onrender.com/generate/qa"; // this talks to your AI concierge
+    const INFO = "You are the LRM Studio copywriter. Use elegant British English. Keep it short, warm, and descriptive.";
+
+    document.getElementById('generate').onclick = async () => {
+      const current = document.getElementById('current').value.trim();
+      const prompt = document.getElementById('prompt').value.trim();
+      const out = document.getElementById('output');
+
+      if(!current) {
+        out.textContent = "Please paste your current description first.";
+        return;
+      }
+
+      out.textContent = "Thinking... please wait.";
+
+      try {
+        const r = await fetch(API_URL, {
+          method: "POST",
+          headers: {"Content-Type":"application/json"},
+          body: JSON.stringify({
+            question: "Rewrite this product description in the LRM Studio style:\n" + current + "\n\nInstructions: " + prompt,
+            faq: INFO,
+            policy: ""
+          })
+        });
+        const d = await r.json();
+        out.textContent = d.text || "No response. Check backend.";
+      } catch(e) {
+        out.textContent = "Something went wrong: " + e.message;
+      }
+    };
+  </script>
+</body>
+</html>
